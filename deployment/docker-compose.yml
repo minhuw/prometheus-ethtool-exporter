@@ -1,0 +1,50 @@
+services:
+  ethtool-exporter:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    cap_add:
+      - NET_ADMIN    # Required for ethtool operations
+      - NET_RAW      # Required for raw socket operations
+    network_mode: "host"  # Required to access host network interfaces
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "9417:9417"  # Expose metrics port
+
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+    # Note: The prometheus.yml uses 172.17.0.1 to access the host network
+    # If your Docker host IP is different, please update prometheus.yml accordingly
+
+  grafana:
+    image: grafana/grafana:10.0.3
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+volumes:
+  prometheus_data:
+  grafana_data: 
