@@ -2,6 +2,8 @@
 
 A Prometheus exporter that exposes NIC statistics obtained through `ethtool -S`.
 
+> ⚠️ **Warning**: This project was heavily generated using Cursor IDE and Claude-3.5-sonnet AI. While efforts have been made to ensure quality and correctness, please review the code carefully before using in production environments. AI-generated code may contain unexpected behaviors or security issues.
+
 ## Features
 
 - Provides standardized metrics across all supported drivers
