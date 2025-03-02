@@ -79,12 +79,12 @@ func (c *EthtoolCollector) Collect(ch chan<- prometheus.Metric) {
 
 		// Export basic metrics
 		basicMetrics := map[string]uint64{
-			"rx_packets_total": processedStats.Basic.RxPackets,
-			"rx_bytes_total":   processedStats.Basic.RxBytes,
-			"rx_drops_total":   processedStats.Basic.RxDrops,
-			"tx_packets_total": processedStats.Basic.TxPackets,
-			"tx_bytes_total":   processedStats.Basic.TxBytes,
-			"tx_drops_total":   processedStats.Basic.TxDrops,
+			"rx_packets": processedStats.Basic.RxPackets,
+			"rx_bytes":   processedStats.Basic.RxBytes,
+			"rx_drops":   processedStats.Basic.RxDrops,
+			"tx_packets": processedStats.Basic.TxPackets,
+			"tx_bytes":   processedStats.Basic.TxBytes,
+			"tx_drops":   processedStats.Basic.TxDrops,
 		}
 
 		for name, value := range basicMetrics {
@@ -108,12 +108,12 @@ func (c *EthtoolCollector) Collect(ch chan<- prometheus.Metric) {
 			queueLabelValues := append(labelValues, fmt.Sprintf("%d", qStats.QueueIndex))
 
 			queueMetrics := map[string]uint64{
-				"queue_rx_packets_total": qStats.RxPackets,
-				"queue_rx_bytes_total":   qStats.RxBytes,
-				"queue_rx_drops_total":   qStats.RxDrops,
-				"queue_tx_packets_total": qStats.TxPackets,
-				"queue_tx_bytes_total":   qStats.TxBytes,
-				"queue_tx_drops_total":   qStats.TxDrops,
+				"queue_rx_packets": qStats.RxPackets,
+				"queue_rx_bytes":   qStats.RxBytes,
+				"queue_rx_drops":   qStats.RxDrops,
+				"queue_tx_packets": qStats.TxPackets,
+				"queue_tx_bytes":   qStats.TxBytes,
+				"queue_tx_drops":   qStats.TxDrops,
 			}
 
 			for name, value := range queueMetrics {
