@@ -2,7 +2,7 @@
 
 A Prometheus exporter that exposes NIC statistics obtained through `ethtool -S`.
 
-> ⚠️ **Warning**: This project was heavily generated using Cursor IDE and Claude-3.5-sonnet AI. While efforts have been made to ensure quality and correctness, please review the code carefully before using in production environments. AI-generated code may contain unexpected behaviors or security issues.
+> ⚠️ **Warning**: This project was heavily (more than 90%) generated using Cursor IDE and Claude-3.5-sonnet AI. While efforts have been made to ensure quality and correctness, please review the code carefully before using in production environments. AI-generated code may contain unexpected behaviors or security issues.
 
 ## Features
 
@@ -51,7 +51,7 @@ go build
 
 ```nix
 {
-  inputs.ethtool-exporter.url = "github:yourusername/prometheus-ethtool-exporter";
+  inputs.ethtool-exporter.url = "github:minhuw/prometheus-ethtool-exporter";
   
   outputs = { self, nixpkgs, ethtool-exporter, ... }: {
     nixosConfigurations.yourhostname = nixpkgs.lib.nixosSystem {
@@ -79,13 +79,19 @@ go build
 
 ### Docker Module
 
-1. Build the Docker image:
+You can either pull the pre-built image from GitHub Container Registry:
+
+```bash
+docker pull ghcr.io/minhuw/prometheus-ethtool-exporter:latest
+```
+
+Or build the image locally:
 
 ```bash
 docker build -t prometheus-ethtool-exporter .
 ```
 
-2. Run the container:
+Run the container (using either the pulled or locally built image):
 
 ```bash
 docker run -d \
@@ -94,7 +100,7 @@ docker run -d \
   --cap-add=NET_ADMIN \
   --cap-add=NET_RAW \
   -p 9417:9417 \
-  prometheus-ethtool-exporter
+  ghcr.io/minhuw/prometheus-ethtool-exporter:latest  # or prometheus-ethtool-exporter if locally built
 ```
 
 Note: The container requires `NET_ADMIN` and `NET_RAW` capabilities to access network interface statistics.
