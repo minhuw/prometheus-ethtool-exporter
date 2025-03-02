@@ -17,7 +17,7 @@
           version = "0.1.0";
           src = ./.;
 
-          vendorHash = null; # Will be updated on first build
+          vendorHash = "sha256-5wf8OslCSUem7q1M43pqILqbYqo8mNnqwjywB1OS9PI=";
 
           meta = with pkgs.lib; {
             description = "Prometheus exporter for ethtool metrics";
