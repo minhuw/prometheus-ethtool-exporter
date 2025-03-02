@@ -1,0 +1,26 @@
+name: Nix
+
+on:
+  push:
+    branches: [ "main" ]
+    tags: [ "v*" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  nix-build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Nix
+      uses: DeterminateSystems/nix-installer-action@v9
+
+    - name: Set up Nix cache
+      uses: DeterminateSystems/magic-nix-cache-action@v2
+
+    - name: Build package
+      run: nix build
+
+    - name: Check flake
+      run: nix flake check 
