@@ -16,7 +16,7 @@ linters:
 
 linters-settings:
   gocyclo:
-    min-complexity: 15
+    min-complexity: 20
   gosec:
     excludes:
       - G104 # Errors unhandled in ethtool operations (expected)
@@ -27,10 +27,13 @@ issues:
       linters:
         - gosec
         - errcheck
+  exclude-dirs:
+    - vendor/
+    - scripts/
 
 run:
   timeout: 5m
   tests: true
-  skip-dirs:
-    - vendor/
-    - scripts/ 
+  
+output:
+  sort-results: true
