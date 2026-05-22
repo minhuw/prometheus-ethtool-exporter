@@ -19,11 +19,14 @@ A Prometheus exporter that exposes NIC statistics obtained through `ethtool -S`.
 ## Usage
 
 ```bash
-# Run with default settings (port 9417)
+# Run with default settings (all interfaces, port 9417)
 sudo ./prometheus-ethtool-exporter
 
+# Bind to localhost for local scraping
+sudo ./prometheus-ethtool-exporter -web.listen-address 127.0.0.1:9417
+
 # Specify custom port
-sudo ./prometheus-ethtool-exporter -port 9100
+sudo ./prometheus-ethtool-exporter -web.listen-address :9100
 
 # Specify specific interfaces to monitor
 sudo ./prometheus-ethtool-exporter -interfaces eth0,eth1
@@ -70,9 +73,10 @@ go build
 {
   services.prometheus.exporters.ethtool = {
     enable = true;
+    listenAddress = "127.0.0.1";
     port = 9417;
     interfaces = [ "eth0" "eth1" ];
-    openFirewall = true;
+    openFirewall = false;
   };
 }
 ```
@@ -150,4 +154,4 @@ All metrics are exposed on `/metrics` endpoint. The exporter provides several ty
 
 ## License
 
-MIT License 
+MIT License

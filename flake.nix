@@ -7,36 +7,50 @@
   };
 
   outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = nixpkgs.legacyPackages.${system};
-      in
-      {
-        packages.default = pkgs.buildGoModule {
-          pname = "prometheus-ethtool-exporter";
-          version = "0.1.0";
-          src = ./.;
+    flake-utils.lib.eachDefaultSystem
+      (system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
+        {
+          packages.default = pkgs.buildGoModule {
+            pname = "prometheus-ethtool-exporter";
+            version = "0.1.0";
+            src = ./.;
 
-          vendorHash = "sha256-5wf8OslCSUem7q1M43pqILqbYqo8mNnqwjywB1OS9PI=";
+            vendorHash = "sha256-5wf8OslCSUem7q1M43pqILqbYqo8mNnqwjywB1OS9PI=";
 
-          meta = with pkgs.lib; {
-            description = "Prometheus exporter for ethtool metrics";
-            homepage = "https://github.com/minhuw/prometheus-ethtool-exporter";
-            license = licenses.mit;
-            maintainers = [ ];
-            platforms = platforms.linux;
+            meta = with pkgs.lib; {
+              description = "Prometheus exporter for ethtool metrics";
+              homepage = "https://github.com/minhuw/prometheus-ethtool-exporter";
+              license = licenses.mit;
+              maintainers = [ ];
+              platforms = platforms.linux;
+            };
           };
-        };
-      }
-    ) // {
+        }
+      ) // {
       nixosModules.default = { config, lib, pkgs, ... }:
         with lib;
         let
           cfg = config.services.prometheus.exporters.ethtool;
+          listenAddress = "${cfg.listenAddress}:${toString cfg.port}";
+          args = [
+            "-web.listen-address=${listenAddress}"
+            "-web.telemetry-path=${cfg.telemetryPath}"
+          ] ++ lib.optionals (cfg.interfaces != [ ]) [
+            "-interfaces=${lib.concatStringsSep "," cfg.interfaces}"
+          ];
         in
         {
           options.services.prometheus.exporters.ethtool = {
             enable = mkEnableOption (mdDoc "prometheus ethtool exporter");
+
+            listenAddress = mkOption {
+              type = types.str;
+              default = "127.0.0.1";
+              description = mdDoc "Address to listen on";
+            };
 
             port = mkOption {
               type = types.port;
@@ -44,9 +58,15 @@
               description = mdDoc "Port to listen on";
             };
 
+            telemetryPath = mkOption {
+              type = types.str;
+              default = "/metrics";
+              description = mdDoc "Path under which to expose metrics";
+            };
+
             interfaces = mkOption {
               type = types.listOf types.str;
-              default = [];
+              default = [ ];
               description = mdDoc "List of network interfaces to monitor";
             };
 
@@ -70,7 +90,7 @@
               after = [ "network.target" ];
 
               serviceConfig = {
-                ExecStart = "${self.packages.${pkgs.system}.default}/bin/prometheus-ethtool-exporter";
+                ExecStart = "${self.packages.${pkgs.system}.default}/bin/prometheus-ethtool-exporter ${lib.escapeShellArgs args}";
                 DynamicUser = true;
                 AmbientCapabilities = cfg.capabilities;
                 CapabilityBoundingSet = cfg.capabilities;
@@ -98,4 +118,4 @@
           };
         };
     };
-} 
+}

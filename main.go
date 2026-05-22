@@ -70,7 +70,7 @@ func main() {
 
 	// Check if running as root
 	if os.Geteuid() != 0 {
-		log.Fatal("This exporter needs to be run with root privileges to access network statistics")
+		log.Warn("Running as non-root; make sure CAP_NET_ADMIN and CAP_NET_RAW are available")
 	}
 
 	// Parse interfaces
@@ -84,6 +84,10 @@ func main() {
 		defer eth.Close()
 
 		for _, iface := range strings.Split(*interfaces, ",") {
+			iface = strings.TrimSpace(iface)
+			if iface == "" {
+				continue
+			}
 			info, err := eth.DriverInfo(iface)
 			if err != nil {
 				log.Warnf("Failed to get driver info for interface %s: %v", iface, err)
