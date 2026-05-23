@@ -14,7 +14,7 @@ A Prometheus exporter that exposes NIC statistics obtained through `ethtool -S`.
 ## Prerequisites
 
 - Go 1.21 or higher
-- One or more Mellanox ConnectX network cards using the mlx5 driver
+- One or more network cards using a supported driver: mlx5 or i40e
 
 ## Usage
 

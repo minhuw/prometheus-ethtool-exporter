@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/minhu/prometheus-ethtool-exporter/collector"
+	"github.com/minhu/prometheus-ethtool-exporter/collector/drivers"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/safchain/ethtool"
@@ -49,8 +50,8 @@ func getNetworkInterfaces() ([]string, error) {
 			continue
 		}
 
-		// Only include mlx5 and ena interfaces
-		if info.Driver == "mlx5_core" || info.Driver == "ena" {
+		// Only include supported interfaces
+		if drivers.IsSupportedDriver(info.Driver) {
 			interfaces = append(interfaces, link.Attrs().Name)
 			log.Debugf("Found supported interface %s with driver %s", link.Attrs().Name, info.Driver)
 		} else {
@@ -93,7 +94,7 @@ func main() {
 				log.Warnf("Failed to get driver info for interface %s: %v", iface, err)
 				continue
 			}
-			if info.Driver == "mlx5_core" || info.Driver == "ena" {
+			if drivers.IsSupportedDriver(info.Driver) {
 				ifaceList = append(ifaceList, iface)
 				log.Debugf("Added manually specified interface %s with driver %s", iface, info.Driver)
 			} else {
@@ -109,7 +110,7 @@ func main() {
 	}
 
 	if len(ifaceList) == 0 {
-		log.Fatal("No supported network interfaces found (only mlx5 and ena drivers are supported)")
+		log.Fatalf("No supported network interfaces found (only %s drivers are supported)", drivers.SupportedDriversString())
 	}
 
 	// Create and register collector
@@ -129,7 +130,7 @@ func main() {
 			<body>
 			<h1>Network Interface Statistics Exporter</h1>
 			<p><a href="` + *metricsPath + `">Metrics</a></p>
-			<p>Only monitoring interfaces with mlx5 and ena drivers.</p>
+			<p>Only monitoring interfaces with ` + drivers.SupportedDriversString() + ` drivers.</p>
 			</body>
 			</html>`)); err != nil {
 			log.Errorf("Error writing response: %v", err)
@@ -138,7 +139,7 @@ func main() {
 
 	// Start server
 	log.Infof("Starting network interface statistics exporter on %s", *listenAddress)
-	log.Infof("Monitoring supported interfaces (mlx5/ena): %s", strings.Join(ifaceList, ", "))
+	log.Infof("Monitoring supported interfaces (%s): %s", drivers.SupportedDriversString(), strings.Join(ifaceList, ", "))
 	srv := &http.Server{
 		Addr:         *listenAddress,
 		Handler:      nil, // Use default handler

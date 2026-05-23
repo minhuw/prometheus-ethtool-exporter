@@ -207,12 +207,14 @@ func GetNICInfo(eth *ethtool.Ethtool, link netlink.Link) (*drivers.NICInfo, erro
 		return nil, fmt.Errorf("failed to get driver info: %v", err)
 	}
 
-	// Only accept mlx5 and ena drivers
-	if info.Driver != "mlx5_core" && info.Driver != "ena" {
-		return nil, fmt.Errorf("unsupported driver: %s (only mlx5 and ena drivers are supported)", info.Driver)
+	// Only accept supported drivers
+	if !drivers.IsSupportedDriver(info.Driver) {
+		return nil, fmt.Errorf("unsupported driver: %s (only %s drivers are supported)", info.Driver, drivers.SupportedDriversString())
 	}
 
 	return &drivers.NICInfo{
+		Name:       link.Attrs().Name,
+		Driver:     info.Driver,
 		DriverType: info.Driver,
 		Version:    info.Version,
 	}, nil
