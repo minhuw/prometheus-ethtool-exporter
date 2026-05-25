@@ -4,11 +4,13 @@ package drivers
 const (
 	DriverMLX5 = "mlx5_core"
 	DriverI40E = "i40e"
+	DriverICE  = "ice"
 )
 
 var supportedDrivers = map[string]struct{}{
 	DriverMLX5: {},
 	DriverI40E: {},
+	DriverICE:  {},
 }
 
 // IsSupportedDriver reports whether this exporter accepts a driver.
@@ -19,7 +21,7 @@ func IsSupportedDriver(driver string) bool {
 
 // SupportedDriversString returns a human-readable supported-driver list.
 func SupportedDriversString() string {
-	return "mlx5 and i40e"
+	return "mlx5, i40e, and ice"
 }
 
 // BasicStats contains the basic metrics every NIC should provide
@@ -78,6 +80,8 @@ func GetMetricPrefix(driverType string) string {
 		return "mlx5"
 	case DriverI40E:
 		return "i40e"
+	case DriverICE:
+		return "ice"
 	default:
 		return "unknown"
 	}
@@ -90,6 +94,8 @@ func ProcessDriverStats(driverType string, rawStats map[string]uint64) Processed
 		return processMLX5Stats(rawStats)
 	case DriverI40E:
 		return processI40EStats(rawStats)
+	case DriverICE:
+		return processICEStats(rawStats)
 	}
 
 	return ProcessedStats{
