@@ -14,7 +14,7 @@ A Prometheus exporter that exposes NIC statistics obtained through `ethtool -S`.
 ## Prerequisites
 
 - Go 1.21 or higher
-- One or more network cards using a supported driver: mlx5, i40e, or ice
+- One or more network cards using a supported driver: mlx5, i40e, ice, or ixgbe
 
 ## Usage
 
